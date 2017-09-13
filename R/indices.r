@@ -2,7 +2,7 @@
 #'
 #'
 
-dissim2<-function(datmat,pow=1,full=FALSE,...)
+dissim2<-function(datmat,pow=2,full=FALSE,...)
 {
 deem=dim(datmat)
 dout=data.frame(t(combn(deem[2],2)))

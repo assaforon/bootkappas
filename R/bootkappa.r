@@ -12,22 +12,20 @@ observed=disfun(truemat,...)
 
 perms=genperms(data[,id],strata=data[,rater],B=B,boots=boots)
 
-return(observed)
+nulls=rep(NA,B)
+for (a in 1:B)
+{
+  permat=acast(formula=paste(id,'+variable~',rater),data=prep[match(perms[,a],paste(data[,rater],data[,id])),])
+  nulls[a]=disfun(permat,...)
+}
+return(list(observed,nulls))
 
 
-# 
-# deem=dim(datmat)
-#   
-# bootraw=rep(NA,B)
-# for (a in 1:B)
-# {
-#     bootmat=apply(datmat,2,sample,replace=boots) 
-#     #  print(bootmat)
-#     bootraw[a]=disfun(bootmat,...)
-# }
 # list(true=observed,boot=1-observed/bootraw)  
 }
 
-# la=FEES[-c(20,23),-3] %>% melt(id.var=1:2) %>% dcast (formula=subject+variable~swallow)
+# example using multiagree dataset
+# data(FEES)
+# la=multiagree::FEES[-c(20,23),-3] %>% melt(id.var=1:2) %>% dcast (formula=subject+variable~swallow)
 # names(la)[-1]=c('rater','s1','s4')
 
