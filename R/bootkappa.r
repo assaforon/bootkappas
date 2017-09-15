@@ -7,16 +7,20 @@ require(reshape2)
 
 prep=melt(data[,c(id,rater,varnames)],id.var=c(id,rater))
 truemat=acast(formula=paste(id,'+variable~',rater),data=prep,fun.aggregate=mean)
-#return(truemat)
+#return(list(prep,truemat))
 observed=disfun(truemat,...)
 
-perms=genperms(data[,id],strata=data[,rater],B=B,boots=boots)
+stratID=paste(prep$rater,prep$variable)
+perms=genperms(prep[,id],strata=stratID,B=B,boots=boots)
 
 nulls=rep(NA,B)
 for (a in 1:B)
 {
-  permat=acast(formula=paste(id,'+variable~',rater),data=prep[match(perms[,a],paste(data[,rater],data[,id])),],fun.aggregate=mean)
-  print(permat)
+  mixprep=cbind(prep[,id],prep[match(perms[,a],paste(stratID,prep[,id])),-1])
+  names(mixprep)[1]=id
+  permat=acast(formula=paste(id,'+variable~',rater),data=mixprep,fun.aggregate=mean)
+#return(list(perms,permat,stratID)) 
+#  cat(dim(permat))
   nulls[a]=disfun(permat,...)
 }
 return(list(true=observed,ref0=nulls,truemat=truemat,perms=perms))
@@ -27,6 +31,7 @@ return(list(true=observed,ref0=nulls,truemat=truemat,perms=perms))
 
 # example using multiagree dataset
 # data(FEES)
-# la=multiagree::FEES[-c(20,23),-3] %>% melt(id.var=1:2) %>% dcast (formula=subject+variable~swallow)
+# la=FEES[-c(20,23),-3] %>% melt(id.var=1:2) %>% dcast (formula=subject+variable~swallow)
 # names(la)[-1]=c('rater','s1','s4')
+# ha=bootkappa(la,B=10,id='subject',varnames=c('s1','s4'),na.rm=TRUE)
 
